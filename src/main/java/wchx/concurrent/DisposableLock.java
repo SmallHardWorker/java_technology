@@ -20,51 +20,31 @@ public class DisposableLock {
 
     static class Sync extends AbstractQueuedSynchronizer {
 
-        private AtomicInteger status = new AtomicInteger(0);
-
         Sync() {
             setState(0);
         }
 
         @Override
         protected final boolean tryAcquire(int acquires) {
-            final Thread current = Thread.currentThread();
-            int c = getState();
-            if (0 == c) {
-                if (!hasQueuedPredecessors() && status.compareAndSet(0, 1) && compareAndSetState(0, acquires)) {
-                    setExclusiveOwnerThread(current);
-                    return true;
-                } else if (2 == status.get()) {
-                    return true;
-                } else {
-                    return false;
-                }
+            if (0 == getState() && !hasQueuedPredecessors() && compareAndSetState(0, 1)) {
+                setExclusiveOwnerThread(Thread.currentThread());
+                return true;
             } else {
-                return false;
+                return return 2 == status.get();
             }
         }
 
         private boolean acquireTruly() {
-            if (Thread.currentThread() == getExclusiveOwnerThread() && status.get() < 2) {
-                return true;
-            } else {
-                return false;
-            }
+            return Thread.currentThread() == getExclusiveOwnerThread() && 1 == status.get();
         }
 
         @Override
         protected final boolean tryRelease(int releases) {
-            int c = getState() - releases;
             if (Thread.currentThread() != getExclusiveOwnerThread()) {
                 throw new IllegalMonitorStateException();
             }
             boolean free = false;
-            if (0 == c) {
-                free = true;
-            }
-            setState(c);
-            status.compareAndSet(1, 2);
-            return free;
+            return status.compareAndSetState(1, 2);
         }
     }
 
