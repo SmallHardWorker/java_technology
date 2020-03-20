@@ -30,7 +30,7 @@ public class DisposableLock {
                 setExclusiveOwnerThread(Thread.currentThread());
                 return true;
             } else {
-                return return 2 == status.get();
+                return 2 == status.get();
             }
         }
 
@@ -43,8 +43,7 @@ public class DisposableLock {
             if (Thread.currentThread() != getExclusiveOwnerThread()) {
                 throw new IllegalMonitorStateException();
             }
-            boolean free = false;
-            return status.compareAndSetState(1, 2);
+            return compareAndSetState(1, 2);
         }
     }
 
