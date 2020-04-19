@@ -30,12 +30,12 @@ public class DisposableLock {
                 setExclusiveOwnerThread(Thread.currentThread());
                 return true;
             } else {
-                return 2 == status.get();
+                return 2 == getState();
             }
         }
 
         private boolean acquireTruly() {
-            return Thread.currentThread() == getExclusiveOwnerThread() && 1 == status.get();
+            return Thread.currentThread() == getExclusiveOwnerThread() && 1 == getState();
         }
 
         @Override
